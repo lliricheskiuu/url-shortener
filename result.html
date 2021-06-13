@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% if i == 1 %}
+    <h1>Invalid URL. Supported schemes: https</h1>
+{% endif %}
+<h1> <a href="{{ link }}"> {{ rand_key }} </a> </h1>
+<form action="" method="POST">
+    <input type="text" name="{{ rand_key }}">
+    <input type="submit" value="Generate">
+</form>
+{% endblock %}
