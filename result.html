@@ -1,12 +1,14 @@
-{% extends "layout.html" %}
-
-{% block content %}
-{% if i == 1 %}
-    <h1>Invalid URL. Supported schemes: https</h1>
-{% endif %}
-<h1> <a href="{{ link }}"> {{ rand_key }} </a> </h1>
-<form action="" method="POST">
-    <input type="text" name="{{ rand_key }}">
-    <input type="submit" value="Generate">
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+    <head>
+  <title>{% block title %}URL-Shortener{% endblock %}</title>
+    </head>
+    <body>
+        <h1>{{ message }}</h1>
+        {% if key %}<h1><a href="{% url 'url_redirect' key %}">{{ key }}</a> </h1>{% endif %}
+        <form action="" method="POST">
+            <input type="text" name="url">
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>

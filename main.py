@@ -1,12 +1,15 @@
 import random
 import string
+from urllib.parse import urlparse
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.management import execute_from_command_line
 from django.http import HttpResponseNotFound
 from django.urls import path
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.utils.baseconv import base56
 
 settings.configure(
     DEBUG=True,
@@ -20,38 +23,32 @@ settings.configure(
     ]
 )
 
+ALLOWED_SCHEMES = {'http', 'https', 'ftp'}
+MIN_KEY, MAX_KEY = 80106440, 550731775
 
-# def url_redirect(request, key):
-#     for l1, l2 in request.POST.items():
-#         link = l2
-#     return redirect(link)
+
+def url_redirect(request, key):
+    return redirect(to=cache.get(key, '/'))
 
 
 def url_shortener(request):
-    print(request.POST)
-    letters = string.ascii_letters
-    rand_key = ''.join(random.choice(letters) for i in range(5))
-
+    ctx = {}
     if request.POST:
-        for l1, l2 in request.POST.items():
-            key = l1
-            link = l2
-        if link.split(':')[0] != 'https':
-            return render(request, "result.html", {'i': 1})
-        return render(request, "result.html", {'key': key,
-                                               'link': link,
-                                               'rand_key': rand_key})
-
-    return render(request, "main.html", {'rand_key': rand_key})
+        url = request.POST.get('url')
+        if urlparse(url).scheme in ALLOWED_SCHEMES:
+            key = base56.encode(random.randint(MIN_KEY, MAX_KEY))
+            cache.add(key, url)
+            ctx['key'] = key
+        else:
+            ctx['message'] = f'Invalid URL {url}. Allowed schemes: ' + ','.join(ALLOWED_SCHEMES)
+    return render(request, 'result.html', ctx)
 
 
 urlpatterns = [
     path('url', url_shortener),
-    # path('url/<key>', url_redirect, name='url_redirect')
+    path('url/<key>', url_redirect, name='url_redirect')
 ]
 
 if __name__ == '__main__':
     execute_from_command_line()
 
-# нерабочая строка кода из 'result.html':
-# <h1><a href="{% url 'url_redirect' key %}"> {{ rand_key }} </a> </h1>
