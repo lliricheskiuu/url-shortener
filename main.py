@@ -1,11 +1,9 @@
 import random
-import string
-from urllib.parse import urlparse
 
+from urllib.parse import urlparse
 from django.conf import settings
 from django.core.cache import cache
 from django.core.management import execute_from_command_line
-from django.http import HttpResponseNotFound
 from django.urls import path
 from django.shortcuts import render
 from django.shortcuts import redirect
